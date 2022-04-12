@@ -31,16 +31,20 @@ public class DetalheUsuarioServico implements UserDetailsService{
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		try {
+	
 			Usuario usuario = usuarioRepository.findByLogin(username);
-			if (usuario == null)
-				return null;
-			Set<GrantedAuthority> papeis = getPapeis(usuario);
-			User user = new User(usuario.getLogin(), usuario.getPassword(), papeis);
-			return user;
-		} catch (Exception e) {
-			throw new UsernameNotFoundException("Usuário não encontrado");
-		}		 
+			if (usuario != null && usuario.isAtivo()) {
+				Set<GrantedAuthority> papeis = getPapeis(usuario);
+				User user = new User(usuario.getLogin(), usuario.getPassword(), papeis);
+				return user;
+			}else {
+				throw new UsernameNotFoundException("Usuario não encontrado");
+			}
+				
+				
+
+			
+		 
 	}
 	
 	private Set<GrantedAuthority> getPapeis(Usuario usuario	){
