@@ -1,6 +1,7 @@
 
 package br.edu.ifms.noticiaCliente.cliente;
 
+import java.util.List;
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebParam;
 import jakarta.jws.WebResult;
@@ -36,6 +37,48 @@ public interface SEINoticia {
     @ResponseWrapper(localName = "adicionarResponse", targetNamespace = "http://servico.aula04.ifms.edu.br/", className = "br.edu.ifms.noticiaCliente.cliente.AdicionarResponse")
     @Action(input = "http://servico.aula04.ifms.edu.br/SEINoticia/adicionarRequest", output = "http://servico.aula04.ifms.edu.br/SEINoticia/adicionarResponse")
     public boolean adicionar(
+        @WebParam(name = "arg0", targetNamespace = "")
+        Noticia arg0);
+
+    /**
+     * 
+     * @param arg0
+     * @return
+     *     returns boolean
+     */
+    @WebMethod
+    @WebResult(targetNamespace = "")
+    @RequestWrapper(localName = "apagar", targetNamespace = "http://servico.aula04.ifms.edu.br/", className = "br.edu.ifms.noticiaCliente.cliente.Apagar")
+    @ResponseWrapper(localName = "apagarResponse", targetNamespace = "http://servico.aula04.ifms.edu.br/", className = "br.edu.ifms.noticiaCliente.cliente.ApagarResponse")
+    @Action(input = "http://servico.aula04.ifms.edu.br/SEINoticia/apagarRequest", output = "http://servico.aula04.ifms.edu.br/SEINoticia/apagarResponse")
+    public boolean apagar(
+        @WebParam(name = "arg0", targetNamespace = "")
+        long arg0);
+
+    /**
+     * 
+     * @return
+     *     returns java.util.List<br.edu.ifms.noticiaCliente.cliente.Noticia>
+     */
+    @WebMethod(operationName = "Listar")
+    @WebResult(targetNamespace = "")
+    @RequestWrapper(localName = "Listar", targetNamespace = "http://servico.aula04.ifms.edu.br/", className = "br.edu.ifms.noticiaCliente.cliente.Listar")
+    @ResponseWrapper(localName = "ListarResponse", targetNamespace = "http://servico.aula04.ifms.edu.br/", className = "br.edu.ifms.noticiaCliente.cliente.ListarResponse")
+    @Action(input = "http://servico.aula04.ifms.edu.br/SEINoticia/ListarRequest", output = "http://servico.aula04.ifms.edu.br/SEINoticia/ListarResponse")
+    public List<Noticia> listar();
+
+    /**
+     * 
+     * @param arg0
+     * @return
+     *     returns boolean
+     */
+    @WebMethod
+    @WebResult(targetNamespace = "")
+    @RequestWrapper(localName = "alterar", targetNamespace = "http://servico.aula04.ifms.edu.br/", className = "br.edu.ifms.noticiaCliente.cliente.Alterar")
+    @ResponseWrapper(localName = "alterarResponse", targetNamespace = "http://servico.aula04.ifms.edu.br/", className = "br.edu.ifms.noticiaCliente.cliente.AlterarResponse")
+    @Action(input = "http://servico.aula04.ifms.edu.br/SEINoticia/alterarRequest", output = "http://servico.aula04.ifms.edu.br/SEINoticia/alterarResponse")
+    public boolean alterar(
         @WebParam(name = "arg0", targetNamespace = "")
         Noticia arg0);
 
