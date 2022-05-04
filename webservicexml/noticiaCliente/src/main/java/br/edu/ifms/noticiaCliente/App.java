@@ -103,6 +103,41 @@ public class App {
 
 	}
 
+	/*
+	 * private static void criar() { SEINoticia adicionarNoticia =
+	 * service.getPort(SEINoticia.class); Noticia noticia = new Noticia();
+	 * noticia.setData(gerarData());
+	 * noticia.setTitulo("eliminatórias da copa do mundo");
+	 * noticia.setTexto("Cristiano Ronaldo celebra vaga de Portugal na Copa...");
+	 * boolean retorno = adicionarNoticia.adicionar(noticia);
+	 * System.out.println(retorno); break; }
+	 * 
+	 * private static void ler() { SEINoticia servicoNoticia =
+	 * service.getPort(SEINoticia.class); List<Noticia> lista =
+	 * servicoNoticia.listar(); for (Noticia not : lista) {
+	 * 
+	 * System.out.println(not.getId()); System.out.println(not.getTexto());
+	 * System.out.println(not.getTitulo()); System.out.println(not.getData());
+	 * System.out.println("--------------------------------"); } }
+	 * 
+	 * private static void alterar() { SEINoticia editarNoticia =
+	 * service.getPort(SEINoticia.class); Noticia noticiaal = new Noticia();
+	 * System.out.println("Qual noticia deseja alterar \n"); long numeroNoticia =
+	 * scanner.nextInt(); noticiaal.setId(numeroNoticia);
+	 * noticiaal.setData(gerarData());
+	 * System.out.println("Novo Titulo da notica: \n"); String titulo =
+	 * scanner.nextLine(); noticiaal.setTitulo(titulo);
+	 * System.out.println("Novo Texto da notica: \n"); String texto =
+	 * scanner.nextLine(); noticiaal.setTexto(texto); boolean altera =
+	 * editarNoticia.alterar(noticiaal); System.out.println(altera); }
+	 * 
+	 * private static void excluir() {
+	 * System.out.println("Qual noticia deseja apagar \n"); long valor =
+	 * scanner.nextInt(); SEINoticia excluirNoticia =
+	 * service.getPort(SEINoticia.class); boolean exlcurir =
+	 * excluirNoticia.apagar(valor); System.out.println(exlcurir); }
+	 */
+	
 	private static XMLGregorianCalendar gerarData() {
 		GregorianCalendar c = new GregorianCalendar();
 		c.setTime(new Date());

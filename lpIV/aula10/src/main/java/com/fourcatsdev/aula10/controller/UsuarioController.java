@@ -7,6 +7,8 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -32,6 +34,35 @@ public class UsuarioController {
 	@Autowired
 	private PapelRepository papelRepository;
 
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
+
+	private boolean temAutorizacao(Usuario usuario, String papel) {
+		for (Papel pp : usuario.getPapeis()) {
+			if (pp.getPapel().equals(papel)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@RequestMapping("/index")
+	public String index(@CurrentSecurityContext(expression = "authentication.name") String login) {
+		Usuario usuario = usuarioRepository.findByLogin(login);
+
+		String redirectURL = "";
+		if (temAutorizacao(usuario, "ADMIN")) {
+			redirectURL = "/auth/admin/admin-index";
+		} else if (temAutorizacao(usuario, "USER")) {
+			redirectURL = "/auth/user/user-index";
+		} else if (temAutorizacao(usuario, "BIBLIOTECARIO")) {
+			redirectURL = "/auth/biblio/biblio-index";
+		}
+		return redirectURL;
+	}
+	
+	
+
 	@GetMapping("/novo")
 	public String adicionarUsuario(Model model) {
 		model.addAttribute("usuario", new Usuario());
@@ -39,24 +70,29 @@ public class UsuarioController {
 	}
 
 	@PostMapping("/salvar")
-	public String salvarUsuario(@Valid Usuario usuario, BindingResult result, Model model,
-			RedirectAttributes attributes) {
+	public String salvarUsuario(@Valid Usuario usuario, BindingResult result, 
+				Model model, RedirectAttributes attributes) {
 		if (result.hasErrors()) {
 			return "/publica-criar-usuario";
 		}
-
+		
 		Usuario usr = usuarioRepository.findByLogin(usuario.getLogin());
 		if (usr != null) {
 			model.addAttribute("loginExiste", "Login já existe cadastrado");
 			return "/publica-criar-usuario";
 		}
-
-		// Busca o papel básico de usuário
+		
+		//Busca o papel básico de usuário
 		Papel papel = papelRepository.findByPapel("USER");
 		List<Papel> papeis = new ArrayList<Papel>();
-		papeis.add(papel);
+		papeis.add(papel);				
 		usuario.setPapeis(papeis); // associa o papel de USER ao usuário
-
+		
+		//início spring security
+		String senhaCriptografada = passwordEncoder.encode(usuario.getPassword());
+		usuario.setPassword(senhaCriptografada);
+		//fim spring security
+		
 		usuarioRepository.save(usuario);
 		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso!");
 		return "redirect:/usuario/novo";

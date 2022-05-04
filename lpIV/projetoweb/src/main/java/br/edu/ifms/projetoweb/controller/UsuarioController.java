@@ -1,6 +1,5 @@
 package br.edu.ifms.projetoweb.controller;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -8,6 +7,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,6 +29,7 @@ public class UsuarioController {
 	@Autowired
 	private UsuarioRepository usuarioRepository;
 
+	// início spring security
 	@Autowired
 	private PapelRepository papelRepository;
 
@@ -45,19 +46,20 @@ public class UsuarioController {
 	}
 
 	@RequestMapping("/index")
-	public String index(Principal principal, Model model) {
-		String login = principal.getName();
+	public String index(@CurrentSecurityContext(expression = "authentication.name") String login) {
 		Usuario usuario = usuarioRepository.findByLogin(login);
-		model.addAttribute("usuario", usuario);
 
 		String redirectURL = "";
 		if (temAutorizacao(usuario, "ADMIN")) {
 			redirectURL = "/auth/admin/admin-index";
 		} else if (temAutorizacao(usuario, "USER")) {
 			redirectURL = "/auth/user/user-index";
+		} else if (temAutorizacao(usuario, "BIBLIOTECARIO")) {
+			redirectURL = "/auth/biblio/biblio-index";
 		}
 		return redirectURL;
 	}
+	// fim spring security
 
 	@RequestMapping("/admin/listar")
 	public String listarUsuario(Model model) {
@@ -80,20 +82,29 @@ public class UsuarioController {
 	}
 
 	@PostMapping("/salvar")
-	public String salvarUsuario(@Valid Usuario usuario, BindingResult result, RedirectAttributes attributes) {
+	public String salvarUsuario(@Valid Usuario usuario, BindingResult result, 
+				Model model, RedirectAttributes attributes) {
 		if (result.hasErrors()) {
 			return "/publica-criar-usuario";
 		}
-		// Busca o papel básico de usuário
+		
+		Usuario usr = usuarioRepository.findByLogin(usuario.getLogin());
+		if (usr != null) {
+			model.addAttribute("loginExiste", "Login já existe cadastrado");
+			return "/publica-criar-usuario";
+		}
+		
+		//Busca o papel básico de usuário
 		Papel papel = papelRepository.findByPapel("USER");
 		List<Papel> papeis = new ArrayList<Papel>();
-		papeis.add(papel);
-
+		papeis.add(papel);				
+		usuario.setPapeis(papeis); // associa o papel de USER ao usuário
+		
+		//início spring security
 		String senhaCriptografada = passwordEncoder.encode(usuario.getPassword());
 		usuario.setPassword(senhaCriptografada);
-
-		usuario.setPapeis(papeis); // associa o papel de USER ao usuário
-
+		//fim spring security
+		
 		usuarioRepository.save(usuario);
 		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso!");
 		return "redirect:/usuario/novo";
@@ -109,17 +120,15 @@ public class UsuarioController {
 		model.addAttribute("usuario", usuario);
 		return "auth/user/user-alterar-usuario";
 	}
-	
+
 	@PostMapping("/editar/{id}")
-	public String editarUsuario(@PathVariable("id") long id,
-			@Valid Usuario usuario, BindingResult result) {
-		if(result.hasErrors()) {
+	public String editarUsuario(@PathVariable("id") long id, @Valid Usuario usuario, BindingResult result) {
+		if (result.hasErrors()) {
 			usuario.setId(id);
 			return "/auth/user/user-alterar-usuario";
 		}
 		usuarioRepository.save(usuario);
 		return "redirect:/usuario/admin/listar";
 	}
-	
 
 }
